@@ -27,4 +27,44 @@ const controls=()=>[...form.querySelectorAll('input,textarea,select')];function 
 function saveFile(){const payload={format:'vc-sar-skills-confidence-matrix',version:1,exportedAt:new Date().toISOString(),responses:snapshot()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='SAR-Skills-Assessment-'+(form.elements.diver.value.trim().replace(/[^a-z0-9]+/gi,'-')||'Blank')+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 document.querySelector('#file').addEventListener('change',async function(){const f=this.files[0];if(!f)return;try{const p=JSON.parse(await f.text());if(p.format!=='vc-sar-skills-confidence-matrix'||!p.responses||typeof p.responses!=='object')throw Error('Incompatible assessment file');if(confirm('Replace current responses with this saved assessment?')){form.reset();apply(p.responses);persist()}}catch(e){alert('Could not load: '+e.message)}this.value=''});
 function clearAll(){if(!confirm('Clear every response and rating? Save a backup first if needed.'))return;form.reset();localStorage.removeItem(key);progress()}
+</script><style id="print-fix-v11">
+/* Print-only value mirrors expand to fit every response and normalize type weight. */
+.print-value{display:none}
+@media print{
+  input[type="text"],input[type="date"],textarea,select{display:none!important}
+  .print-value{display:block!important;font:400 10pt/1.42 Arial,Helvetica,sans-serif!important;color:#111!important;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;border:1px solid #b7bec6;border-radius:3px;padding:5px 7px;min-height:20px;max-height:none!important;overflow:visible!important;break-inside:auto}
+  td .print-value{min-width:0;padding:3px;border:0}
+  label{font-weight:700}
+  .strength label,.checks label{font-weight:400}
+  .panel{break-inside:auto}
+  .strength{break-inside:auto}
+  .two{break-inside:avoid}
+  h2,h3{break-after:avoid}
+  .tablewrap{overflow:visible!important}
+  table{table-layout:fixed}
+  th:first-child{width:35%}th:nth-child(2),th:nth-child(3){width:17%}th:nth-child(4){width:31%}
+  td{overflow-wrap:anywhere}
+}
+</style>
+<script>
+(function(){
+  let mirrors=[];
+  function removeMirrors(){mirrors.forEach(n=>n.remove());mirrors=[]}
+  function preparePrint(){
+    removeMirrors();
+    document.querySelectorAll('#form textarea,#form input[type="text"],#form input[type="date"],#form select').forEach(el=>{
+      const span=document.createElement('div');
+      span.className='print-value';
+      span.textContent=el.tagName==='SELECT'?(el.selectedOptions[0]?.textContent||''):el.value;
+      if(!span.textContent.trim())span.textContent=' ';
+      el.insertAdjacentElement('afterend',span);
+      mirrors.push(span);
+    });
+  }
+  window.addEventListener('beforeprint',preparePrint);
+  window.addEventListener('afterprint',removeMirrors);
+  // Override the page's Print buttons to ensure mirrors exist before print preview.
+  document.querySelectorAll('button[onclick="print()"]').forEach(b=>b.setAttribute('onclick','prepareAssessmentPrint()'));
+  window.prepareAssessmentPrint=function(){preparePrint();window.print()};
+})();
 </script></html>
