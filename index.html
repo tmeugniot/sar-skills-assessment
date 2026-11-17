@@ -67,4 +67,26 @@ function clearAll(){if(!confirm('Clear every response and rating? Save a backup 
   document.querySelectorAll('button[onclick="print()"]').forEach(b=>b.setAttribute('onclick','prepareAssessmentPrint()'));
   window.prepareAssessmentPrint=function(){preparePrint();window.print()};
 })();
-</script></html>
+</script><style id="typography-fix-v12">
+/* Form labels are bold; values must never inherit label boldness. */
+#form input[type="text"],#form input[type="date"],#form textarea,#form select{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-weight:400!important;
+ font-style:normal!important;
+}
+#form .print-value,#form label .print-value,#form td .print-value{
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-weight:400!important;
+ font-style:normal!important;
+}
+@media print{
+ #form .print-value,#form label .print-value,#form td .print-value{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-weight:400!important;
+  font-style:normal!important;
+  text-shadow:none!important;
+  -webkit-text-stroke:0 transparent!important;
+ }
+ #form label{font-weight:700}
+}
+</style></html>
